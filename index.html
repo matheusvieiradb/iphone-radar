@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iPhone 17 Radar</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📡</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#eff1ea;
+    --surface:#ffffff;
+    --surface-2:#e3e7db;
+    --ink:#17211c;
+    --ink-soft:#4b564d;
+    --border:#d6dbcb;
+    --accent:#0e6b4a;
+    --accent-strong:#0a5038;
+    --accent-soft:#dcf0e6;
+    --gold:#a3701e;
+    --gold-soft:#f5e8cd;
+    --bad:#af4732;
+    --bad-soft:#f6e0d8;
+    --shadow: 0 1px 2px rgba(23,33,28,.06), 0 8px 24px -12px rgba(23,33,28,.18);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#10140f;
+      --surface:#171d18;
+      --surface-2:#1f2621;
+      --ink:#e9ede6;
+      --ink-soft:#a7b1a5;
+      --border:#2b332c;
+      --accent:#3fcb92;
+      --accent-strong:#6ee0ac;
+      --accent-soft:#173629;
+      --gold:#e0ab48;
+      --gold-soft:#3a2e15;
+      --bad:#e2795f;
+      --bad-soft:#3a211b;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    }
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Public Sans", ui-sans-serif, system-ui, sans-serif;
+    padding:28px 20px 40px;
+    display:flex;
+    justify-content:center;
+  }
+  .page{width:100%; max-width:1080px; display:flex; flex-direction:column; gap:22px;}
+  h1,h2,h3{font-family:"Fraunces", Georgia, serif; text-wrap:balance; margin:0;}
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;
+    border-bottom:1px solid var(--border); padding-bottom:18px;
+  }
+  .brand h1{font-size:2.1rem; font-weight:900; letter-spacing:-.01em;}
+  .brand p{margin:6px 0 0; color:var(--ink-soft); font-size:.95rem; max-width:56ch;}
+  .status{display:flex; flex-direction:column; align-items:flex-end; gap:8px;}
+  .pill{
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:.78rem; font-weight:600; padding:5px 11px; border-radius:99px;
+    background:var(--surface-2); color:var(--ink-soft); border:1px solid var(--border);
+    font-variant-numeric:tabular-nums;
+  }
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); flex:none;}
+  .schedule-chip{font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.75rem; color:var(--ink-soft);}
+  .refresh-btn{
+    font:inherit; font-size:.78rem; font-weight:700; color:var(--accent-strong);
+    background:var(--accent-soft); border:1px solid var(--border); border-radius:99px;
+    padding:5px 12px; cursor:pointer;
+  }
+  .refresh-btn:hover{filter:brightness(0.97);}
+  .refresh-btn:focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+
+  .controls{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px;
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:16px; box-shadow:var(--shadow);
+  }
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft);}
+  .field select{
+    font:inherit; font-size:.95rem; font-weight:600; color:var(--ink);
+    background:var(--surface); border:1px solid var(--border); border-radius:9px;
+    padding:10px 12px; appearance:none;
+    background-image:linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+    background-position:calc(100% - 20px) 55%, calc(100% - 14px) 55%;
+    background-size:6px 6px, 6px 6px; background-repeat:no-repeat;
+  }
+  .field select:focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+
+  .cards{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:20px 22px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:14px;
+  }
+  .card-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px;}
+  .card-head h2{font-size:1rem; font-weight:600; color:var(--ink-soft); font-family:"Public Sans",sans-serif; text-transform:uppercase; letter-spacing:.05em;}
+  .badge{font-size:.7rem; font-weight:700; padding:3px 9px; border-radius:99px;}
+  .badge.estimado{background:var(--gold-soft); color:var(--gold);}
+  .badge.confirmado{background:var(--accent-soft); color:var(--accent-strong);}
+  .price-big{font-family:"IBM Plex Mono", monospace; font-size:2.5rem; font-weight:600; letter-spacing:-.01em; font-variant-numeric:tabular-nums;}
+  .sites{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; border-top:1px solid var(--border);}
+  .sites li{display:flex; justify-content:space-between; padding:8px 0; font-size:.88rem; border-bottom:1px solid var(--border);}
+  .sites li.cheapest{color:var(--accent-strong); font-weight:700;}
+  .sites li span:last-child{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums;}
+  .empty-note{color:var(--ink-soft); font-size:.85rem; padding:8px 0;}
+
+  .history{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:18px 22px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
+  }
+  .history-head{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;}
+  .history-head h2{font-size:.95rem; font-weight:700; font-family:"Public Sans",sans-serif;}
+  .history-head span{font-size:.78rem; color:var(--ink-soft);}
+  .spark-wrap{width:100%; overflow-x:auto;}
+  .spark-wrap svg{display:block;}
+  .spark-legend{display:flex; gap:18px; font-size:.78rem; color:var(--ink-soft);}
+  .spark-legend b{display:inline-flex; align-items:center; gap:5px; font-weight:600;}
+  .swatch{width:10px; height:10px; border-radius:2px;}
+
+  .insights{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  .insight{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:14px;
+    padding:16px 18px; display:flex; flex-direction:column; gap:8px;
+  }
+  .insight h3{font-size:.82rem; font-weight:700; font-family:"Public Sans",sans-serif; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft);}
+  .insight p{margin:0; font-size:.88rem; line-height:1.55; color:var(--ink);}
+
+  .coverage-note{
+    font-size:.78rem; color:var(--ink-soft); border-top:1px solid var(--border); padding-top:14px;
+  }
+  .coverage-note a{color:var(--accent-strong);}
+
+  @media (max-width:720px){
+    .controls{grid-template-columns:1fr;}
+    .cards{grid-template-columns:1fr;}
+    .insights{grid-template-columns:1fr;}
+    .topbar{align-items:flex-start;}
+    .status{align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="brand">
+      <h1>iPhone 17 Radar</h1>
+      <p>Preço de novo e seminovo do iPhone 17 (Base, Air, Pro e Pro Max) no Brasil. Atualizado automaticamente por um robô no GitHub Actions — sem IA na coleta.</p>
+    </div>
+    <div class="status">
+      <span class="pill"><span class="dot"></span><span id="last-updated">carregando…</span></span>
+      <span class="pill schedule-chip" id="schedule-chip">06h · 12h · 17h · 22h (Brasília)</span>
+      <button class="refresh-btn" id="refresh-btn" type="button">Atualizar agora</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="field">
+      <label for="sel-variant">Variante</label>
+      <select id="sel-variant"></select>
+    </div>
+    <div class="field">
+      <label for="sel-storage">Armazenamento</label>
+      <select id="sel-storage"></select>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card" id="card-new">
+      <div class="card-head"><h2>Novo</h2><span class="badge" id="badge-new"></span></div>
+      <div class="price-big" id="price-new">—</div>
+      <ul class="sites" id="sites-new"></ul>
+    </div>
+    <div class="card" id="card-used">
+      <div class="card-head"><h2>Seminovo</h2><span class="badge" id="badge-used"></span></div>
+      <div class="price-big" id="price-used">—</div>
+      <ul class="sites" id="sites-used"></ul>
+    </div>
+  </div>
+
+  <div class="history">
+    <div class="history-head">
+      <h2 id="history-title">Histórico de preço médio</h2>
+      <span id="history-updated">—</span>
+    </div>
+    <div class="spark-wrap"><svg id="spark" viewBox="0 0 640 140" width="640" height="140" role="img" aria-label="Histórico de preço"></svg></div>
+    <div class="spark-legend">
+      <b><span class="swatch" style="background:var(--accent)"></span>Novo</b>
+      <b><span class="swatch" style="background:var(--gold)"></span>Seminovo</b>
+    </div>
+  </div>
+
+  <div class="insights">
+    <div class="insight"><h3>Melhores janelas de compra</h3><p id="insight-buy">carregando…</p></div>
+    <div class="insight"><h3>Padrão de desvalorização</h3><p id="insight-depr">carregando…</p></div>
+    <div class="insight"><h3>Dicas práticas</h3><p id="insight-tips">carregando…</p></div>
+  </div>
+
+  <div class="coverage-note">
+    Preço "novo" combina o valor oficial da Apple Store BR (atualizado manualmente) com Mercado Livre, OLX, KaBuM, Amazon BR e Google Shopping. Preço "seminovo" vem do Mercado Livre, OLX e Amazon BR. Amazon BR e Google Shopping são fontes de melhor esforço (podem falhar sem aviso). Código aberto — <span id="repo-note">ver fonte no repositório deste site</span>.
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var LINEUP = [
+    {variant:"base", storage:[256,512]},
+    {variant:"Air", storage:[256,512,1024]},
+    {variant:"Pro", storage:[256,512,1024]},
+    {variant:"Pro Max", storage:[256,512,1024,2048]}
+  ];
+
+  function docId(variant, storage){
+    var v = variant.toLowerCase().replace(/\s+/g,"-");
+    return v + "-" + storage;
+  }
+  function fmtBRL(n){
+    if(n === null || n === undefined) return "—";
+    return "R$ " + Math.round(n).toLocaleString("pt-BR");
+  }
+  function fmtDate(iso){
+    if(!iso) return "—";
+    try{
+      var d = new Date(iso);
+      return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}) + " às " +
+             d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+    }catch(e){ return iso; }
+  }
+  function colorVar(name){
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#0e6b4a";
+  }
+
+  var selVariant = document.getElementById("sel-variant");
+  var selStorage = document.getElementById("sel-storage");
+  var DATA = null;
+
+  LINEUP.forEach(function(e){
+    var o = document.createElement("option"); o.value = e.variant; o.textContent = e.variant;
+    selVariant.appendChild(o);
+  });
+
+  function storagesFor(variant){
+    var e = LINEUP.filter(function(e){ return e.variant === variant; })[0];
+    return e ? e.storage : [];
+  }
+  function refreshStorages(){
+    var variant = selVariant.value;
+    selStorage.innerHTML = "";
+    storagesFor(variant).forEach(function(s){
+      var o = document.createElement("option"); o.value = s;
+      o.textContent = s >= 1024 ? (s/1024) + "TB" : s + "GB";
+      selStorage.appendChild(o);
+    });
+  }
+  selVariant.addEventListener("change", function(){ refreshStorages(); render(); });
+  selStorage.addEventListener("change", render);
+
+  selVariant.value = "Pro";
+  refreshStorages();
+  selStorage.value = "256";
+
+  function renderSites(ul, bySite){
+    ul.innerHTML = "";
+    var entries = Object.keys(bySite || {})
+      .filter(function(k){ return bySite[k] !== null && bySite[k] !== undefined; })
+      .map(function(k){ return [k, bySite[k]]; })
+      .sort(function(a,b){ return a[1]-b[1]; });
+    if(entries.length === 0){
+      var li = document.createElement("li");
+      li.className = "empty-note"; li.style.border = "none";
+      li.textContent = "Sem preço por loja capturado ainda.";
+      ul.appendChild(li);
+      return;
+    }
+    entries.forEach(function(pair, i){
+      var li = document.createElement("li");
+      if(i === 0) li.className = "cheapest";
+      var s1 = document.createElement("span"); s1.textContent = pair[0];
+      var s2 = document.createElement("span"); s2.textContent = fmtBRL(pair[1]);
+      li.appendChild(s1); li.appendChild(s2);
+      ul.appendChild(li);
+    });
+  }
+  function renderBadge(el, estimated, hasData){
+    if(!hasData){ el.textContent = ""; el.className = "badge"; return; }
+    if(estimated){ el.textContent = "estimado"; el.className = "badge estimado"; }
+    else { el.textContent = "confirmado"; el.className = "badge confirmado"; }
+  }
+
+  function renderSpark(history){
+    var svg = document.getElementById("spark");
+    var W = 640, H = 140, pad = 28;
+    svg.innerHTML = "";
+    var pts = (history || []).filter(function(h){ return h.avgNew !== null && h.avgNew !== undefined; });
+    document.getElementById("history-updated").textContent = pts.length
+      ? "última leitura: " + fmtDate(pts[pts.length-1].ts)
+      : "sem histórico ainda";
+
+    if(pts.length === 0){
+      var t = document.createElementNS("http://www.w3.org/2000/svg","text");
+      t.setAttribute("x", W/2); t.setAttribute("y", H/2);
+      t.setAttribute("text-anchor","middle"); t.setAttribute("fill", colorVar("--ink-soft"));
+      t.setAttribute("font-family","Public Sans, sans-serif"); t.setAttribute("font-size","13");
+      t.textContent = "Histórico será construído a cada rodada automática.";
+      svg.appendChild(t);
+      return;
+    }
+
+    var allVals = [];
+    pts.forEach(function(h){ allVals.push(h.avgNew); if(h.avgUsed) allVals.push(h.avgUsed); });
+    var min = Math.min.apply(null, allVals), max = Math.max.apply(null, allVals);
+    if(min === max){ min = min*0.9; max = max*1.1; }
+
+    function x(i,n){ return n<=1 ? W/2 : pad + (i/(n-1)) * (W-2*pad); }
+    function y(v){ return H-pad - ((v-min)/(max-min)) * (H-2*pad); }
+
+    function drawLine(vals, color, dashed){
+      if(vals.length === 1){
+        var c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+        c.setAttribute("cx", x(0,1)); c.setAttribute("cy", y(vals[0]));
+        c.setAttribute("r", 4); c.setAttribute("fill", color);
+        svg.appendChild(c);
+        return;
+      }
+      var d = vals.map(function(v,i){ return (i===0?"M":"L") + x(i,vals.length) + "," + y(v); }).join(" ");
+      var p = document.createElementNS("http://www.w3.org/2000/svg","path");
+      p.setAttribute("d", d); p.setAttribute("fill","none");
+      p.setAttribute("stroke", color); p.setAttribute("stroke-width","2.5");
+      if(dashed) p.setAttribute("stroke-dasharray","4 3");
+      p.setAttribute("stroke-linecap","round"); p.setAttribute("stroke-linejoin","round");
+      svg.appendChild(p);
+      vals.forEach(function(v,i){
+        var c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+        c.setAttribute("cx", x(i,vals.length)); c.setAttribute("cy", y(v));
+        c.setAttribute("r", 3); c.setAttribute("fill", color);
+        svg.appendChild(c);
+      });
+    }
+
+    drawLine(pts.map(function(h){ return h.avgNew; }), colorVar("--accent"), false);
+    var usedPts = pts.filter(function(h){ return h.avgUsed !== null && h.avgUsed !== undefined; });
+    if(usedPts.length) drawLine(usedPts.map(function(h){ return h.avgUsed; }), colorVar("--gold"), true);
+  }
+
+  function render(){
+    if(!DATA) return;
+    var variant = selVariant.value, storage = Number(selStorage.value);
+    var id = docId(variant, storage);
+    var combo = DATA.combos ? DATA.combos[id] : null;
+
+    document.getElementById("history-title").textContent =
+      "Histórico — iPhone 17 " + variant + " " + (storage>=1024 ? (storage/1024)+"TB" : storage+"GB");
+
+    if(!combo){
+      document.getElementById("price-new").textContent = "sem dados";
+      document.getElementById("price-used").textContent = "sem dados";
+      document.getElementById("sites-new").innerHTML = "";
+      document.getElementById("sites-used").innerHTML = "";
+      renderBadge(document.getElementById("badge-new"), false, false);
+      renderBadge(document.getElementById("badge-used"), false, false);
+      renderSpark([]);
+      return;
+    }
+
+    document.getElementById("price-new").textContent = fmtBRL(combo.new && combo.new.avgBRL);
+    document.getElementById("price-used").textContent = fmtBRL(combo.used && combo.used.avgBRL);
+    renderSites(document.getElementById("sites-new"), combo.new && combo.new.bySite);
+    renderSites(document.getElementById("sites-used"), combo.used && combo.used.bySite);
+    renderBadge(document.getElementById("badge-new"), combo.new && combo.new.estimated, !!(combo.new && combo.new.avgBRL));
+    renderBadge(document.getElementById("badge-used"), combo.used && combo.used.estimated, !!(combo.used && combo.used.avgBRL));
+    renderSpark(combo.history || []);
+  }
+
+  function applyGlobalFields(){
+    if(!DATA) return;
+    document.getElementById("last-updated").textContent = DATA.generatedAt
+      ? "atualizado em " + fmtDate(DATA.generatedAt)
+      : "sem data de atualização";
+    if(DATA.schedule) document.getElementById("schedule-chip").textContent = DATA.schedule;
+    if(DATA.insights){
+      document.getElementById("insight-buy").textContent = DATA.insights.bestBuyWindows || "—";
+      document.getElementById("insight-depr").textContent = DATA.insights.depreciationPattern || "—";
+      document.getElementById("insight-tips").textContent = DATA.insights.practicalTips || "—";
+    }
+  }
+
+  function load(){
+    fetch("data/prices.json?ts=" + Date.now(), {cache:"no-store"})
+      .then(function(r){ return r.json(); })
+      .then(function(json){ DATA = json; applyGlobalFields(); render(); })
+      .catch(function(){
+        document.getElementById("last-updated").textContent = "falha ao carregar dados";
+      });
+  }
+
+  document.getElementById("refresh-btn").addEventListener("click", load);
+  load();
+})();
+</script>
+</body>
+</html>
